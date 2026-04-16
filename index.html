@@ -69,11 +69,31 @@ section {
     cursor: pointer;
 }
 
+/* MODULE INFO */
 .module-info {
     margin-top: 20px;
     max-width: 800px;
     margin: auto;
     line-height: 1.7;
+}
+
+/* CODE BOX */
+.code-box {
+    background: #0f172a;
+    color: #38bdf8;
+    padding: 15px;
+    border-radius: 8px;
+    text-align: left;
+    max-width: 700px;
+    margin: 15px auto;
+    font-family: monospace;
+    white-space: pre-line;
+}
+
+/* GIF */
+.module-gif {
+    margin-top: 15px;
+    max-width: 300px;
 }
 
 /* VIDEO */
@@ -193,6 +213,9 @@ The system supports SQL-like queries such as CREATE, INSERT, SELECT, UPDATE, DEL
 <div class="module-info" id="infoBox">
 Click a module to view detailed explanation
 </div>
+
+<div id="moduleExtra"></div>
+
 </section>
 
 <section id="flow">
@@ -202,32 +225,24 @@ Click a module to view detailed explanation
      style="width:110px; margin:20px auto; display:block;">
 
 <div class="flow-container">
-
 <div class="flow-box" onclick="activate(this); showFlow('input')">User Query</div>
 <div class="arrow">→</div>
-
 <div class="flow-box" onclick="activate(this); showFlow('parser')">Parser</div>
 <div class="arrow">→</div>
-
 <div class="flow-box" onclick="activate(this); showFlow('executor')">Executor</div>
 <div class="arrow">→</div>
-
 <div class="flow-box" onclick="activate(this); showFlow('storage')">Storage</div>
 <div class="arrow">→</div>
-
 <div class="flow-box" onclick="activate(this); showFlow('output')">Output</div>
-
 </div>
 
 <div class="flow-info" id="flowInfo">
 Click any block to understand how query is processed
 </div>
-
 </section>
 
 <section id="demo">
 <h2>Project Demo</h2>
-
 <div class="video-box" onclick="openVideo()">
 <img src="https://img.youtube.com/vi/8muB5l0hh6E/maxresdefault.jpg">
 </div>
@@ -251,28 +266,71 @@ window.open("https://youtu.be/8muB5l0hh6E","_blank");
 
 function downloadFile(){
 const link=document.createElement('a');
-link.href='BuildDBEngine.ipynb';
-link.download='BuildDBEngine.ipynb';
+link.href='./BuildDB.ipynb';
+link.download='BuildDB.ipynb';
 link.click();
 }
 
-/* YOUR DETAILED MODULE TEXT (UNCHANGED) */
+/* MODULES */
 function showInfo(type){
+
 const data = {
 
-parser: "The Parser module is responsible for analyzing and interpreting user input queries. It breaks down SQL-like commands into smaller tokens such as keywords, table names, values, and conditions. The parser also validates the syntax of the query and ensures that it follows the correct structure before passing it to the executor. This step is crucial because it prevents invalid or malformed queries from being executed.",
+parser: {
+text: "The Parser module is responsible for analyzing and interpreting user input queries. It breaks down SQL-like commands into smaller tokens such as keywords, table names, values, and conditions. The parser also validates the syntax of the query and ensures that it follows the correct structure before passing it to the executor. This step is crucial because it prevents invalid or malformed queries from being executed.",
+file: "PARSER.ipynb",
+code: "def parse(query):\n    tokens = query.split()\n    return tokens",
+gif: "https://media.giphy.com/media/L8K62iTDkzGX6/giphy.gif"
+},
 
-executor: "The Executor module acts as the core processing unit of the system. It receives structured commands from the parser and determines which operation needs to be performed, such as CREATE, INSERT, SELECT, UPDATE, or DELETE. It then interacts with the storage engine to execute these operations and generates the final output that is displayed to the user.",
+executor: {
+text: "The Executor module acts as the core processing unit of the system. It receives structured commands from the parser and determines which operation needs to be performed, such as CREATE, INSERT, SELECT, UPDATE, or DELETE.",
+file: "EXECUTOR.ipynb",
+code: "def execute(tokens):\n    if tokens[0]=='select':\n        return fetch_data()",
+gif: "https://media.giphy.com/media/xT0xeJpnrWC4XWblEk/giphy.gif"
+},
 
-storage: "The Storage Engine is responsible for managing all data-related operations using file handling. Instead of using a traditional database, this system stores data in text files where each file represents a table. The storage engine handles creating files, writing new records, reading existing data, and updating or deleting records. It ensures that data is stored efficiently and can be retrieved when required.",
+storage: {
+text: "The Storage Engine is responsible for managing all data-related operations using file handling. Each table is stored as a file.",
+file: "STORAGE.ipynb",
+code: "def save(data):\n    with open('table.txt','a') as f:\n        f.write(data)",
+gif: "https://media.giphy.com/media/3o7aD2saalBwwftBIY/giphy.gif"
+},
 
-transaction: "The Transaction Control module ensures data consistency and reliability by managing grouped operations. It supports commands like BEGIN, COMMIT, and ROLLBACK. BEGIN starts a transaction, COMMIT permanently saves all changes made during the transaction, and ROLLBACK reverts the database to its previous state in case of errors. This module simulates real-world database transaction behavior and helps maintain data integrity."
-
-};
-document.getElementById("infoBox").innerText=data[type];
+transaction: {
+text: "The Transaction Control module ensures data consistency and reliability by managing grouped operations using BEGIN, COMMIT and ROLLBACK.",
+file: "TRANSACTION.ipynb",
+code: "def commit():\n    print('Changes saved')",
+gif: "https://media.giphy.com/media/l0MYt5jPR6QX5pnqM/giphy.gif"
 }
 
-/* YOUR DETAILED FLOW TEXT (UNCHANGED) */
+};
+
+let selected = data[type];
+
+document.getElementById("infoBox").innerText = selected.text;
+
+document.getElementById("moduleExtra").innerHTML = `
+<button class="download-btn" onclick="downloadModule('${selected.file}')">
+Download ${type.toUpperCase()} Module
+</button>
+
+<div class="code-box">
+${selected.code}
+</div>
+
+<img class="module-gif" src="${selected.gif}">
+`;
+}
+
+function downloadModule(file){
+const link=document.createElement('a');
+link.href='./'+file;
+link.download=file;
+link.click();
+}
+
+/* FLOW */
 function showFlow(type){
 const data = {
 
@@ -287,7 +345,7 @@ storage: "The Storage Engine handles all data-related operations using file hand
 output: "After the execution of the query, the system generates the final output and displays it to the user. This output could be a confirmation message (such as 'Table Created' or 'Data Inserted') or actual data retrieved from the storage. The output is formatted in a readable structure so that the user can easily understand the result of their query."
 
 };
-document.getElementById("flowInfo").innerText=data[type];
+document.getElementById("flowInfo").innerText = data[type];
 }
 
 function activate(element){
